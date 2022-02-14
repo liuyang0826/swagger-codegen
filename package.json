@@ -1,0 +1,38 @@
+{
+  "name": "swagger-codegen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1161906592/swagger-codegen.git"
+  },
+  "keywords": [
+    "swagger",
+    "codegen",
+    "typescript"
+  ],
+  "author": "liuyang<1161906592@qq.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/1161906592/swagger-codegen/issues"
+  },
+  "homepage": "https://github.com/1161906592/swagger-codegen#readme",
+  "dependencies": {
+    "@babel/generator": "^7.17.0",
+    "@babel/types": "^7.17.0"
+  },
+  "devDependencies": {
+    "@types/babel__generator": "^7.6.4",
+    "@types/node": "^17.0.17",
+    "@types/prettier": "^2.4.4",
+    "eslint": "^8.9.0",
+    "eslint-config-vue-tsx": "github:1161906592/eslint-config-vue-tsx",
+    "prettier": "^2.5.1",
+    "ts-node": "^10.5.0",
+    "typescript": "^4.5.5"
+  }
+}
