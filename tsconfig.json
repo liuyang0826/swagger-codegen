@@ -16,10 +16,9 @@
     "removeComments": false,
     "lib": ["esnext"],
     "types": ["node"],
-    "rootDir": "src",
-    "declaration": true
+    "rootDirs": ["src", "server"],
+    "declaration": false,
+    "jsx": "preserve"
   },
-  "include": [
-    "src/*.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "server/*.ts"]
 }

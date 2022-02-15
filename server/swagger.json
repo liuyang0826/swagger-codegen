@@ -1,0 +1,357 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "更多Spring Boot相关文章请关注：http://blog.didispace.com/",
+    "version": "1.0",
+    "title": "Spring Boot中使用Swagger2构建RESTful APIs"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [{
+    "name": "用户管理",
+    "description": "User"
+  }],
+  "paths": {
+    "/api/user/order/create/": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "用户列表",
+        "description": "哈哈哈哈哈",
+        "operationId": "listUsingGET",
+        "produces": ["*/*"],
+        "parameters": [{
+          "name": "id",
+          "in": "query",
+          "description": "需要删除的公告ids",
+          "required": true,
+          "type": "string",
+          "allowEmptyValue": false
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse«List«UserVO«AddressVO,AddressVO»»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/one": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "单个用户",
+        "description": "哈哈哈哈哈",
+        "operationId": "oneUsingGET",
+        "produces": ["*/*"],
+        "parameters": [{
+          "name": "id",
+          "in": "query",
+          "description": "用户id",
+          "required": false,
+          "type": "string",
+          "allowEmptyValue": false
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse«UserVO«AddressVO,string»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/user/update": {
+      "post": {
+        "tags": ["用户管理"],
+        "summary": "修改用户",
+        "description": "哈哈哈哈哈",
+        "operationId": "updateUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [{
+          "name": "id",
+          "in": "query",
+          "description": "用户id",
+          "required": true,
+          "type": "string",
+          "allowEmptyValue": false
+        }, {
+          "in": "body",
+          "name": "userVO",
+          "description": "userVO",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/UserVO"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/BaseResponse"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "AddressVO": {
+      "type": "object",
+      "required": ["province"],
+      "properties": {
+        "city": {
+          "type": "array",
+          "description": "市",
+          "items": {
+            "type": "string"
+          }
+        },
+        "province": {
+          "type": "string",
+          "description": "省"
+        }
+      },
+      "title": "AddressVO"
+    },
+    "BaseResponse«List«UserVO«AddressVO,AddressVO»»»": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态"
+        },
+        "data": {
+          "type": "array",
+          "description": "数据",
+          "items": {
+            "$ref": "#/definitions/UserVO«AddressVO,AddressVO»"
+          }
+        },
+        "message": {
+          "type": "string",
+          "description": "消息"
+        }
+      },
+      "title": "BaseResponse«List«UserVO«AddressVO,AddressVO»»»"
+    },
+    "BaseResponse«UserVO«AddressVO,string»»": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态"
+        },
+        "data": {
+          "description": "数据",
+          "$ref": "#/definitions/UserVO«AddressVO,string»"
+        },
+        "message": {
+          "type": "string",
+          "description": "消息"
+        }
+      },
+      "title": "BaseResponse«UserVO«AddressVO,string»»"
+    },
+    "BaseResponse": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态"
+        },
+        "data": {
+          "description": "数据",
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string",
+          "description": "消息"
+        }
+      },
+      "title": "BaseResponse"
+    },
+    "UserVO": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "description": "地址",
+          "items": {
+            "type": "object"
+          }
+        },
+        "age": {
+          "type": "number",
+          "format": "float",
+          "description": "年龄"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32",
+          "description": "身高"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "用户ID"
+        },
+        "price": {
+          "type": "integer",
+          "format": "int64",
+          "description": "价格"
+        },
+        "userCode": {
+          "type": "string",
+          "description": "用户代码"
+        },
+        "userName": {
+          "type": "object",
+          "description": "用户姓名"
+        },
+        "width": {
+          "type": "number",
+          "format": "double",
+          "description": "宽度"
+        }
+      },
+      "title": "UserVO"
+    },
+    "UserVO«AddressVO,AddressVO»": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "description": "地址",
+          "items": {
+            "$ref": "#/definitions/AddressVO"
+          }
+        },
+        "age": {
+          "type": "number",
+          "format": "float",
+          "description": "年龄"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32",
+          "description": "身高"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "用户ID"
+        },
+        "price": {
+          "type": "integer",
+          "format": "int64",
+          "description": "价格"
+        },
+        "userCode": {
+          "type": "string",
+          "description": "用户代码"
+        },
+        "userName": {
+          "description": "用户姓名",
+          "$ref": "#/definitions/AddressVO"
+        },
+        "width": {
+          "type": "number",
+          "format": "double",
+          "description": "宽度"
+        }
+      },
+      "title": "UserVO«AddressVO,AddressVO»"
+    },
+    "UserVO«AddressVO,string»": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "description": "地址",
+          "items": {
+            "$ref": "#/definitions/AddressVO"
+          }
+        },
+        "age": {
+          "type": "number",
+          "format": "float",
+          "description": "年龄"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32",
+          "description": "身高"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "用户ID"
+        },
+        "price": {
+          "type": "integer",
+          "format": "int64",
+          "description": "价格"
+        },
+        "userCode": {
+          "type": "string",
+          "description": "用户代码"
+        },
+        "userName": {
+          "type": "string",
+          "description": "用户姓名"
+        },
+        "width": {
+          "type": "number",
+          "format": "double",
+          "description": "宽度"
+        }
+      },
+      "title": "UserVO«AddressVO,string»"
+    }
+  }
+}

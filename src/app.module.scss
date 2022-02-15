@@ -1,0 +1,85 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 12px;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 24px;
+  font-style: italic;
+  color: #18a058;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 420px;
+  margin-right: 12px;
+}
+
+.main {
+  display: flex;
+}
+
+.aside {
+  padding: 12px;
+  width: 320px;
+  border-right: 1px solid #d9d9d9;
+  height: calc(100vh - 64px);
+  overflow: auto;
+  flex: none;
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+  height: calc(100vh - 64px);
+  overflow: auto;
+}
+
+.get {
+  color: #18a058;
+}
+
+.post {
+  color: #2080f0;
+}
+
+.put {
+  color: #f0a020;
+}
+
+.delete {
+  color: #d03050;
+}
+
+.api-header {
+  display: flex;
+  align-items: center;
+}
+
+.url {
+  font-size: 18px;
+  margin-left: 12px;
+}
+
+.thing {
+  margin-top: 16px;
+}
+
+.info {
+  padding: 8px 12px;
+  background: #f2f4fa;
+  border-radius: 4px;
+}
+
+.table {
+  margin-top: 16px;
+}

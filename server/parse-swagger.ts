@@ -44,6 +44,7 @@ interface DefinitionArrayItem {
 }
 
 interface Definition {
+  required: string[]
   properties: Record<
     string,
     {
@@ -51,6 +52,7 @@ interface Definition {
       $ref?: string
       description?: string
       items?: DefinitionArrayItem
+      format?: string
     }
   >
 }
@@ -61,6 +63,7 @@ interface Parameter {
   description: string
   required: boolean
   type: string
+  format?: string
   allowEmptyValue: boolean
   schema?: {
     $ref: string
@@ -94,7 +97,7 @@ interface Tag {
   description?: string
 }
 
-interface Swagger {
+export interface Swagger {
   tags: Tag[]
   paths: Paths
   definitions: Record<string, Definition>
@@ -115,14 +118,22 @@ interface GroupVO {
   apiVOs: ApiVO[]
 }
 
+interface TableRowVO {
+  name?: string
+  type?: string
+  required?: boolean
+  description?: string
+  children?: TableRowVO[]
+}
+
 interface ApiVO {
   method: string
   url: string
   name: string
   code: string
-  res?: string
-  query?: string
-  body?: string
+  query?: TableRowVO[]
+  requestBody?: TableRowVO[]
+  responseBody?: TableRowVO[]
   summary?: string
   description?: string
   consumes?: string[]
@@ -263,10 +274,44 @@ function collectProgramBody(context: Context) {
     return interfaceName
   }
 
+  function resolveTableRaws(definitionKey?: string) {
+    if (!definitionKey || !definitions[definitionKey]) {
+      return []
+    }
+    const { properties, required } = definitions[definitionKey]
+    const tableRaws: TableRowVO[] = []
+    Object.keys(properties).forEach((propName) => {
+      const { type, $ref, description, items, format } = properties[propName]
+      tableRaws.push({
+        name: propName,
+        type: type ? type + (format ? `(${format})` : "") : "object",
+        description,
+        required: required.includes(propName),
+        children:
+          type === "array"
+            ? [
+                {
+                  name: "[Array Item]",
+                  type: items?.type || "object",
+                  required: true,
+                  children: resolveTableRaws(matchRefInterfaceName(items?.$ref)),
+                },
+              ]
+            : resolveTableRaws(matchRefInterfaceName($ref)),
+      })
+    })
+
+    return tableRaws
+  }
+
+  const refDefinitionKey = matchRefInterfaceName(parameters.find((d) => d.in === "body")?.schema?.$ref)
+
   return {
-    res: resolveTsInterface(definitionKey),
-    query: resolveQuery(),
-    body: resolveTsInterface(matchRefInterfaceName(parameters.find((d) => d.in === "body")?.schema?.$ref)) || "",
+    resInterface: resolveTsInterface(definitionKey),
+    queryInterface: resolveQuery(),
+    bodyInterface: resolveTsInterface(refDefinitionKey),
+    requestBody: resolveTableRaws(refDefinitionKey),
+    responseBody: resolveTableRaws(definitionKey),
   }
 }
 
@@ -308,18 +353,18 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
           name,
         }
 
-        const { res, query, body } = collectProgramBody(context)
+        const { resInterface, queryInterface, bodyInterface, requestBody, responseBody } = collectProgramBody(context)
 
         const apiFunction = functionDeclaration(
           identifier(name),
           [
-            query && {
+            queryInterface && {
               ...identifier("query"),
-              typeAnnotation: tsTypeAnnotation(tsTypeReference(identifier(query))),
+              typeAnnotation: tsTypeAnnotation(tsTypeReference(identifier(queryInterface))),
             },
-            body && {
+            bodyInterface && {
               ...identifier("data"),
-              typeAnnotation: tsTypeAnnotation(tsTypeReference(identifier(body))),
+              typeAnnotation: tsTypeAnnotation(tsTypeReference(identifier(bodyInterface))),
             },
           ].filter(Boolean) as Identifier[],
           blockStatement([
@@ -329,12 +374,14 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
                   [
                     objectProperty(identifier("url"), stringLiteral(url)),
                     objectProperty(identifier("method"), stringLiteral(method)),
-                    query && objectProperty(identifier("params"), identifier("query")),
-                    body && objectProperty(identifier("data"), identifier("data"), false, true),
+                    queryInterface && objectProperty(identifier("params"), identifier("query")),
+                    bodyInterface && objectProperty(identifier("data"), identifier("data"), false, true),
                   ].filter(Boolean) as ObjectProperty[],
                 ),
               ]),
-              typeParameters: res ? tsTypeParameterInstantiation([tsTypeReference(identifier(res))]) : null,
+              typeParameters: resInterface
+                ? tsTypeParameterInstantiation([tsTypeReference(identifier(resInterface))])
+                : null,
             }),
           ]),
         )
@@ -351,9 +398,19 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
           method,
           url,
           name,
-          res,
-          query,
-          body,
+          query: curRequest.parameters
+            .filter((d) => d.in === "query")
+            .map((item) => {
+              const { name, type, format, required, description } = item
+              return {
+                name,
+                type: type ? type + (format ? `(${format})` : "") : "object",
+                required,
+                description,
+              }
+            }),
+          requestBody,
+          responseBody,
           summary,
           description,
           code,
