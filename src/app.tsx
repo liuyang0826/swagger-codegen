@@ -228,10 +228,14 @@ const app = defineComponent({
                 ) : null}
               </NTabPane>
               <NTabPane name={1} tab="请求代码">
-                <NCode code={curApiRef.value?.code} hljs={hljs} language="typescript" />
+                <div class={styles["code-wrapper"]}>
+                  <NCode code={curApiRef.value?.code} hljs={hljs} language="typescript" />
+                </div>
               </NTabPane>
               <NTabPane name={2} tab="Mock数据">
-                <NCode code={curApiRef.value?.mock} hljs={hljs} language="json" />
+                <div class={styles["code-wrapper"]}>
+                  <NCode code={curApiRef.value?.mock} hljs={hljs} language="json" />
+                </div>
               </NTabPane>
               <NTabPane name={3} tab="接口调试">
                 <div>玩命开发中！！！</div>

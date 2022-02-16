@@ -39,7 +39,7 @@
 
 .content {
   flex: 1;
-  padding: 16px;
+  padding: 12px 12px 0;
   height: calc(100vh - 64px);
   overflow: auto;
 }
@@ -86,4 +86,11 @@
 
 .summary {
   margin-left: 48px;
+}
+
+.code-wrapper {
+  height: calc(100vh - 278px);
+  margin-top: -12px;
+  padding: 12px 0;
+  overflow: auto;
 }
