@@ -36,6 +36,7 @@ import {
   tsObjectKeyword,
   TSObjectKeyword,
 } from "@babel/types"
+import mock from "./mock"
 
 type JavaBaseType = "integer" | "number" | "string" | "boolean"
 type JavaType = JavaBaseType | "array" | "object"
@@ -72,26 +73,51 @@ interface Parameter {
   }
 }
 
-interface Paths {
-  [key: string]: Record<
-    string,
+interface RequestDefinition {
+  tags: string[]
+  summary: string
+  description: string
+  operationId: string
+  parameters: Parameter[]
+  responses: Record<
+    "200",
     {
-      tags: string[]
-      summary: string
       description: string
-      operationId: string
-      parameters: Parameter[]
-      responses: Record<
-        "200",
-        {
-          description: string
-          schema: {
-            $ref: string
-          }
-        }
-      >
+      schema: {
+        $ref: string
+      }
     }
   >
+}
+
+export interface TableRowVO {
+  id: number
+  name: string
+  type?: string
+  format?: string
+  required?: boolean
+  description?: string
+  children?: TableRowVO[]
+}
+
+interface ParsedRequestDefinition {
+  query?: TableRowVO[]
+  requestBody?: TableRowVO[][]
+  responseBody: TableRowVO[]
+  code: string
+  mock: string
+  name: string
+  tags: string[]
+  summary: string
+  description: string
+}
+
+interface Paths {
+  [key: string]: Record<string, RequestDefinition>
+}
+
+interface ParsedPaths {
+  [key: string]: Record<string, ParsedRequestDefinition>
 }
 
 interface Tag {
@@ -105,6 +131,11 @@ export interface Swagger {
   definitions: Record<string, Definition>
 }
 
+export interface ParsedSwagger {
+  tags: Tag[]
+  paths: ParsedPaths
+}
+
 interface Context {
   definitionKeyCache: Record<string, 1>
   interfaceNameCache: Record<string, Record<string, number>>
@@ -113,34 +144,6 @@ interface Context {
   definitions: Record<string, Definition>
   parameters: Parameter[]
   name: string
-}
-
-interface GroupVO {
-  tag: Tag
-  apiVOs: ApiVO[]
-}
-
-interface TableRowVO {
-  id: number
-  name?: string
-  type?: string
-  required?: boolean
-  description?: string
-  children?: TableRowVO[]
-}
-
-interface ApiVO {
-  method: string
-  url: string
-  name: string
-  code: string
-  query?: TableRowVO[]
-  requestBody?: TableRowVO[][]
-  responseBody?: TableRowVO[]
-  summary?: string
-  description?: string
-  consumes?: string[]
-  produces?: string[]
 }
 
 // 匹配引用类型的名称
@@ -293,7 +296,8 @@ function collectProgramBody(context: Context) {
       tableRaws.push({
         id: id++,
         name: propName,
-        type: type ? type + (format ? `(${format})` : "") : "object",
+        type: type || "object",
+        format,
         description,
         required: required.includes(propName),
         children:
@@ -331,27 +335,20 @@ function collectProgramBody(context: Context) {
   }
 }
 
-function parseSwagger(swagger: Swagger): GroupVO[] {
+function parseSwagger(swagger: Swagger): ParsedSwagger {
   const { paths, definitions, tags } = swagger
 
-  const tagMap = tags.reduce((acc, cur) => {
-    acc[cur.name] = {
-      tag: cur,
-      apiVOs: [],
-    }
-    return acc
-  }, {} as Record<string, GroupVO>)
-
-  function parsePaths(paths: Paths) {
-    Object.keys(paths).forEach((url) => {
-      const curUrl = paths[url]
-      Object.keys(curUrl).forEach((method) => {
-        const curRequest = curUrl[method]
+  return {
+    tags,
+    paths: Object.keys(paths).reduce((acc1, path) => {
+      const curPath = paths[path]
+      acc1[path] = Object.keys(curPath).reduce((acc2, method) => {
+        const curRequest = curPath[method]
         const definitionKey = matchRefInterfaceName(curRequest.responses["200"].schema?.$ref)
         if (!definitionKey) {
-          return
+          return acc2
         }
-        const { operationId, parameters, summary, description } = curRequest
+        const { operationId, parameters, summary, description, tags } = curRequest
 
         const name = transformOperationId(operationId)
 
@@ -386,7 +383,7 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
               ...callExpression(identifier("http"), [
                 objectExpression(
                   [
-                    objectProperty(identifier("url"), stringLiteral(url)),
+                    objectProperty(identifier("url"), stringLiteral(path)),
                     objectProperty(identifier("method"), stringLiteral(method)),
                     queryInterface && objectProperty(identifier("params"), identifier("query")),
                     bodyInterfaces.length && objectProperty(identifier("data"), identifier("data"), false, true),
@@ -408,10 +405,11 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
 
         const code = generate(context.program).code.replace(/\n\n/g, "\n").replace(/;/g, "")
 
-        const apiVO = {
-          method,
-          url,
+        acc2[method] = {
+          description,
           name,
+          summary,
+          tags,
           query: curRequest.parameters
             .filter((d) => d.in === "query")
             .map((item, index) => {
@@ -419,28 +417,22 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
               return {
                 id: index + 1,
                 name,
-                type: type ? type + (format ? `(${format})` : "") : "object",
+                type: type || "object",
+                format,
                 required,
                 description,
               }
             }),
           requestBody,
           responseBody,
-          summary,
-          description,
           code,
+          mock: JSON.stringify(mock(responseBody), null, 2),
         }
-
-        curRequest.tags.forEach((tag) => {
-          tagMap[tag].apiVOs.push(apiVO)
-        })
-      })
-    })
+        return acc2
+      }, {} as Record<string, ParsedRequestDefinition>)
+      return acc1
+    }, {} as Record<string, Record<string, ParsedRequestDefinition>>),
   }
-
-  parsePaths(paths)
-
-  return Object.values(tagMap)
 }
 
 export default parseSwagger

@@ -17,21 +17,57 @@ import {
 } from "naive-ui"
 import hljs from "highlight.js/lib/core"
 import typescript from "highlight.js/lib/languages/typescript"
+import json from "highlight.js/lib/languages/json"
 import { Checkmark } from "@vicons/ionicons5"
 import styles from "./app.module.scss"
-import swagger, { ApiVO, GroupVO } from "./api/swagger"
+import swagger, { ParsedRequestDefinition, Tag } from "./api/swagger"
 
 hljs.registerLanguage("typescript", typescript)
+hljs.registerLanguage("json", json)
+
+interface ApiVO extends ParsedRequestDefinition {
+  path: string
+  method: string
+}
+
+interface Group {
+  tag: Tag
+  apiVOs: ApiVO[]
+}
 
 const app = defineComponent({
   setup() {
-    const swaggerRef = ref<GroupVO[]>([])
+    const groupsRef = ref<Group[]>()
     const swaggerApiUrlRef = ref()
     const curApiRef = ref<ApiVO>()
 
     onBeforeMount(async () => {
-      swaggerRef.value = await swagger(swaggerApiUrlRef.value)
-      curApiRef.value = swaggerRef.value[0].apiVOs[0]
+      const { paths, tags } = await swagger(swaggerApiUrlRef.value)
+      const tagMap = tags.reduce((acc, cur) => {
+        acc[cur.name] = {
+          tag: cur,
+          apiVOs: [],
+        }
+        return acc
+      }, {} as Record<string, Group>)
+      Object.keys(paths).map((path) => {
+        const curPath = paths[path]
+        Object.keys(curPath).map((method) => {
+          const curRequest = curPath[method]
+          curRequest.tags.forEach((tag) => {
+            const curMapValue = tagMap[tag]
+            if (curMapValue) {
+              curMapValue.apiVOs.push({
+                ...curRequest,
+                method,
+                path,
+              })
+            }
+          })
+        })
+      })
+      groupsRef.value = Object.values(tagMap)
+      curApiRef.value = groupsRef.value[0].apiVOs[0]
     })
 
     const methodTagMap: Record<string, "error" | "info" | "success" | "warning"> = {
@@ -51,6 +87,7 @@ const app = defineComponent({
         title: "参数类型",
         key: "type",
         width: 160,
+        render: ({ type, format }) => type + (format ? `(${format})` : ""),
       },
       {
         title: "必需参数",
@@ -85,7 +122,7 @@ const app = defineComponent({
         <main class={styles.main}>
           <aside class={styles.aside}>
             <NCollapse defaultExpandedNames={[0]}>
-              {swaggerRef.value.map((item, index) => {
+              {groupsRef.value?.map((item, index) => {
                 return (
                   <NCollapseItem
                     name={index}
@@ -98,15 +135,15 @@ const app = defineComponent({
                     <NList bordered>
                       {item.apiVOs.map((api) => {
                         return (
-                          <NListItem key={api.name}>
+                          <NListItem key={api.summary}>
                             <div
                               onClick={() => {
                                 curApiRef.value = api
                               }}
                             >
                               <NThing
-                                titleExtra={api.name}
-                                description={api.url}
+                                titleExtra={api.summary}
+                                description={api.path}
                                 v-slots={{
                                   header: () => <span class={styles[api.method]}>{api.method.toUpperCase()}</span>,
                                 }}
@@ -126,11 +163,14 @@ const app = defineComponent({
               <NTag type={methodTagMap[curApiRef.value?.method || ""]}>
                 <b>{curApiRef.value?.method.toUpperCase()}</b>
               </NTag>
-              <span class={styles.url}>{curApiRef.value?.url}</span>
+              <span class={styles.url}>{curApiRef.value?.path}</span>
             </div>
             <NThing title="接口信息" class={styles.thing}>
               <div class={styles.info}>
-                <div>接口名称：{curApiRef.value?.name}</div>
+                <div>
+                  <span>接口名称：{curApiRef.value?.name}</span>
+                  <span class={styles.summary}>接口摘要：{curApiRef.value?.summary}</span>
+                </div>
                 <div>接口描述：{curApiRef.value?.description}</div>
               </div>
             </NThing>
@@ -152,7 +192,6 @@ const app = defineComponent({
                     />
                   </>
                 ) : null}
-
                 {curApiRef.value?.requestBody?.map((requestBody) => {
                   return requestBody.length ? (
                     <>
@@ -190,6 +229,12 @@ const app = defineComponent({
               </NTabPane>
               <NTabPane name={1} tab="请求代码">
                 <NCode code={curApiRef.value?.code} hljs={hljs} language="typescript" />
+              </NTabPane>
+              <NTabPane name={2} tab="Mock数据">
+                <NCode code={curApiRef.value?.mock} hljs={hljs} language="json" />
+              </NTabPane>
+              <NTabPane name={3} tab="接口调试">
+                <div>玩命开发中！！！</div>
               </NTabPane>
             </NTabs>
           </div>

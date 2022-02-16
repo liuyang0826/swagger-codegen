@@ -5,7 +5,6 @@
     "serve": "ts-node server/index.ts",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && tsc server/*.ts --outDir lib --esModuleInterop --resolveJsonModule",
-    "mock": "mock-server",
     "preview": "vite preview",
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky install"
@@ -34,7 +33,9 @@
     "koa": "^2.13.4",
     "koa-cors": "^0.0.16",
     "koa-router": "^10.1.1",
-    "koa-static": "^5.0.0"
+    "koa-static": "^5.0.0",
+    "lru-cache": "^7.3.1",
+    "mockjs": "^1.1.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.0.1",
@@ -44,6 +45,7 @@
     "@types/koa-cors": "^0.0.2",
     "@types/koa-router": "^7.4.4",
     "@types/koa-static": "^4.0.2",
+    "@types/lru-cache": "^5.1.1",
     "@types/mockjs": "^1.0.6",
     "@types/node": "^17.0.15",
     "@vicons/ionicons5": "^0.12.0",
@@ -55,7 +57,6 @@
     "husky": "^7.0.4",
     "lint-staged": "^12.1.5",
     "mock-server": "github:1161906592/mock-server",
-    "mockjs": "^1.1.0",
     "naive-ui": "^2.25.2",
     "prettier": "^2.5.1",
     "sass": "^1.45.2",

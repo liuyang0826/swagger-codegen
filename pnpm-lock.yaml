@@ -10,6 +10,7 @@ specifiers:
   '@types/koa-cors': ^0.0.2
   '@types/koa-router': ^7.4.4
   '@types/koa-static': ^4.0.2
+  '@types/lru-cache': ^5.1.1
   '@types/mockjs': ^1.0.6
   '@types/node': ^17.0.15
   '@vicons/ionicons5': ^0.12.0
@@ -25,6 +26,7 @@ specifiers:
   koa-router: ^10.1.1
   koa-static: ^5.0.0
   lint-staged: ^12.1.5
+  lru-cache: ^7.3.1
   mock-server: github:1161906592/mock-server
   mockjs: ^1.1.0
   naive-ui: ^2.25.2
@@ -45,6 +47,8 @@ dependencies:
   koa-cors: registry.npmmirror.com/koa-cors/0.0.16
   koa-router: registry.npmmirror.com/koa-router/10.1.1
   koa-static: registry.npmmirror.com/koa-static/5.0.0
+  lru-cache: registry.npmmirror.com/lru-cache/7.3.1
+  mockjs: registry.npmmirror.com/mockjs/1.1.0
 
 devDependencies:
   '@commitlint/cli': registry.npmmirror.com/@commitlint/cli/16.2.1
@@ -54,6 +58,7 @@ devDependencies:
   '@types/koa-cors': registry.npmmirror.com/@types/koa-cors/0.0.2
   '@types/koa-router': registry.npmmirror.com/@types/koa-router/7.4.4
   '@types/koa-static': registry.npmmirror.com/@types/koa-static/4.0.2
+  '@types/lru-cache': registry.npmmirror.com/@types/lru-cache/5.1.1
   '@types/mockjs': registry.npmmirror.com/@types/mockjs/1.0.6
   '@types/node': registry.npmmirror.com/@types/node/17.0.17
   '@vicons/ionicons5': registry.npmmirror.com/@vicons/ionicons5/0.12.0
@@ -64,7 +69,6 @@ devDependencies:
   husky: registry.npmmirror.com/husky/7.0.4
   lint-staged: registry.npmmirror.com/lint-staged/12.3.4
   mock-server: github.com/1161906592/mock-server/6f04e39d704e3b1d325e5af44b5546f8893bb48b
-  mockjs: registry.npmmirror.com/mockjs/1.1.0
   naive-ui: registry.npmmirror.com/naive-ui/2.25.2_vue@3.2.31
   prettier: 2.5.1
   sass: registry.npmmirror.com/sass/1.49.7
@@ -1358,6 +1362,12 @@ packages:
     version: 4.14.178
     dev: true
 
+  registry.npmmirror.com/@types/lru-cache/5.1.1:
+    resolution: {integrity: sha512-ssE3Vlrys7sdIzs5LOxCzTVMsU7i9oa/IaW92wF32JFb3CVczqOkru2xspuKczHEbG3nvmPY7IFqVmGGHdNbYw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/lru-cache/-/lru-cache-5.1.1.tgz}
+    name: '@types/lru-cache'
+    version: 5.1.1
+    dev: true
+
   registry.npmmirror.com/@types/mime/1.3.2:
     resolution: {integrity: sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/mime/-/mime-1.3.2.tgz}
     name: '@types/mime'
@@ -2322,7 +2332,7 @@ packages:
     name: commander
     version: 9.0.0
     engines: {node: ^12.20.0 || >=14}
-    dev: true
+    dev: false
 
   registry.npmmirror.com/compare-func/2.0.0:
     resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/compare-func/-/compare-func-2.0.0.tgz}
@@ -4502,6 +4512,13 @@ packages:
       yallist: registry.npmmirror.com/yallist/4.0.0
     dev: true
 
+  registry.npmmirror.com/lru-cache/7.3.1:
+    resolution: {integrity: sha512-nX1x4qUrKqwbIAhv4s9et4FIUVzNOpeY07bsjGUy8gwJrXH/wScImSQqXErmo/b2jZY2r0mohbLA9zVj7u1cNw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/lru-cache/-/lru-cache-7.3.1.tgz}
+    name: lru-cache
+    version: 7.3.1
+    engines: {node: '>=12'}
+    dev: false
+
   registry.npmmirror.com/magic-string/0.25.7:
     resolution: {integrity: sha512-4CrMT5DOHTDk4HYDlzmwu4FVCcIYI8gauveasrdCu2IKIFOJ3f0v/8MDGJCDL9oD2ppz/Av1b0Nj345H9M+XIA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/magic-string/-/magic-string-0.25.7.tgz}
     name: magic-string
@@ -4644,7 +4661,7 @@ packages:
     hasBin: true
     dependencies:
       commander: registry.npmmirror.com/commander/9.0.0
-    dev: true
+    dev: false
 
   registry.npmmirror.com/ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/ms/-/ms-2.0.0.tgz}
