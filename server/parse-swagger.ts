@@ -56,6 +56,7 @@ interface Definition {
       description?: string
       items?: DefinitionArrayItem
       format?: string
+      enum?: (string | number)[]
     }
   >
 }
@@ -96,6 +97,7 @@ export interface TableRowVO {
   type?: string
   format?: string
   required?: boolean
+  enum?: (string | number)[]
   description?: string
   children?: TableRowVO[]
 }
@@ -292,7 +294,7 @@ function collectProgramBody(context: Context) {
     const { properties, required } = definitions[definitionKey]
     const tableRaws: TableRowVO[] = []
     Object.keys(properties).forEach((propName) => {
-      const { type, $ref, description, items, format } = properties[propName]
+      const { type, $ref, description, items, format, enum: enums } = properties[propName]
       tableRaws.push({
         id: id++,
         name: propName,
@@ -300,6 +302,7 @@ function collectProgramBody(context: Context) {
         format,
         description,
         required: required.includes(propName),
+        enum: enums,
         children:
           type === "array"
             ? [

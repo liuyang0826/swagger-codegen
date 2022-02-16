@@ -229,7 +229,8 @@
         "age": {
           "type": "number",
           "format": "float",
-          "description": "年龄"
+          "description": "年龄",
+          "enum": [1, 2, 3, 4]
         },
         "height": {
           "type": "integer",
@@ -276,7 +277,8 @@
         "age": {
           "type": "number",
           "format": "float",
-          "description": "年龄"
+          "description": "年龄",
+          "enum": [1, 2, 3, 4]
         },
         "height": {
           "type": "integer",
@@ -323,7 +325,8 @@
         "age": {
           "type": "number",
           "format": "float",
-          "description": "年龄"
+          "description": "年龄",
+          "enum": [1, 2, 3, 4]
         },
         "height": {
           "type": "integer",
