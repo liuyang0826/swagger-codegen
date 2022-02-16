@@ -6,6 +6,7 @@ import {
   NCollapse,
   NCollapseItem,
   NDataTable,
+  NIcon,
   NInput,
   NList,
   NListItem,
@@ -16,6 +17,7 @@ import {
 } from "naive-ui"
 import hljs from "highlight.js/lib/core"
 import typescript from "highlight.js/lib/languages/typescript"
+import { Checkmark } from "@vicons/ionicons5"
 import styles from "./app.module.scss"
 import swagger, { ApiVO, GroupVO } from "./api/swagger"
 
@@ -54,7 +56,12 @@ const app = defineComponent({
         title: "必需参数",
         key: "required",
         width: 160,
-        render: (rowData) => (rowData.required ? "是" : "否"),
+        render: (rowData) =>
+          rowData.required ? (
+            <NIcon size={18} style={{ verticalAlign: "middle" }}>
+              <Checkmark />
+            </NIcon>
+          ) : null,
       },
       {
         title: "备注",
@@ -135,11 +142,13 @@ const app = defineComponent({
                       <b>Query</b>
                     </div>
                     <NDataTable
+                      size="small"
                       bordered
                       singleLine={false}
                       columns={columns}
                       data={curApiRef.value.query}
                       class={styles.table}
+                      rowKey={(row) => row.id}
                     />
                   </>
                 ) : null}
@@ -151,12 +160,13 @@ const app = defineComponent({
                         <b>RequestBody</b>
                       </div>
                       <NDataTable
+                        size="small"
                         bordered
                         singleLine={false}
                         columns={columns}
                         data={requestBody}
                         class={styles.table}
-                        rowKey={(row) => row.name}
+                        rowKey={(row) => row.id}
                       />
                     </>
                   ) : null
@@ -167,11 +177,13 @@ const app = defineComponent({
                       <b>ResponseBody</b>
                     </div>
                     <NDataTable
+                      size="small"
                       bordered
                       singleLine={false}
                       columns={columns}
                       data={curApiRef.value.responseBody}
-                      class={styles.table}
+                      class={styles.id}
+                      rowKey={(row) => row.id}
                     />
                   </>
                 ) : null}

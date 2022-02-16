@@ -121,6 +121,7 @@ interface GroupVO {
 }
 
 interface TableRowVO {
+  id: number
   name?: string
   type?: string
   required?: boolean
@@ -279,6 +280,8 @@ function collectProgramBody(context: Context) {
     return interfaceName
   }
 
+  let id = 1
+
   function resolveTableRaws(definitionKey?: string) {
     if (!definitionKey || !definitions[definitionKey]) {
       return []
@@ -288,6 +291,7 @@ function collectProgramBody(context: Context) {
     Object.keys(properties).forEach((propName) => {
       const { type, $ref, description, items, format } = properties[propName]
       tableRaws.push({
+        id: id++,
         name: propName,
         type: type ? type + (format ? `(${format})` : "") : "object",
         description,
@@ -296,6 +300,7 @@ function collectProgramBody(context: Context) {
           type === "array"
             ? [
                 {
+                  id: id++,
                   name: "[Array Item]",
                   type: items?.type || "object",
                   required: true,
@@ -312,12 +317,17 @@ function collectProgramBody(context: Context) {
   const refDefinitionKeys = parameters
     .filter((d) => d.in === "body" && d.schema?.$ref)
     .map((d) => matchRefInterfaceName(d.schema?.$ref))
+
+  const requestBody = refDefinitionKeys.map((refDefinitionKey) => resolveTableRaws(refDefinitionKey))
+  id = 1
+  const responseBody = resolveTableRaws(definitionKey)
+
   return {
     resInterface: resolveTsInterface(definitionKey),
     queryInterface: resolveQuery(),
     bodyInterfaces: refDefinitionKeys.map((refDefinitionKey) => resolveTsInterface(refDefinitionKey) as string),
-    requestBody: refDefinitionKeys.map((refDefinitionKey) => resolveTableRaws(refDefinitionKey)),
-    responseBody: resolveTableRaws(definitionKey),
+    requestBody,
+    responseBody,
   }
 }
 
@@ -404,9 +414,10 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
           name,
           query: curRequest.parameters
             .filter((d) => d.in === "query")
-            .map((item) => {
+            .map((item, index) => {
               const { name, type, format, required, description } = item
               return {
+                id: index + 1,
                 name,
                 type: type ? type + (format ? `(${format})` : "") : "object",
                 required,
