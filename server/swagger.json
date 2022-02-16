@@ -10,11 +10,14 @@
   "tags": [{
     "name": "用户管理",
     "description": "User"
+  }, {
+    "name": "用户管理-copy",
+    "description": "UserCopy"
   }],
   "paths": {
     "/api/user/order/create/": {
       "get": {
-        "tags": ["用户管理"],
+        "tags": ["用户管理", "用户管理-copy"],
         "summary": "用户列表",
         "description": "哈哈哈哈哈",
         "operationId": "listUsingGET",

@@ -23,7 +23,7 @@ export interface ApiVO {
   name: string
   code: string
   query?: TableRowVO[]
-  requestBody?: TableRowVO[]
+  requestBody?: TableRowVO[][]
   responseBody?: TableRowVO[]
   summary?: string
   description?: string

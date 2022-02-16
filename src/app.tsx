@@ -143,20 +143,24 @@ const app = defineComponent({
                     />
                   </>
                 ) : null}
-                {curApiRef.value?.requestBody?.length ? (
-                  <>
-                    <div style="margin-top: 12px;">
-                      <b>RequestBody</b>
-                    </div>
-                    <NDataTable
-                      bordered
-                      singleLine={false}
-                      columns={columns}
-                      data={curApiRef.value.requestBody}
-                      class={styles.table}
-                    />
-                  </>
-                ) : null}
+
+                {curApiRef.value?.requestBody?.map((requestBody) => {
+                  return requestBody.length ? (
+                    <>
+                      <div style="margin-top: 12px;">
+                        <b>RequestBody</b>
+                      </div>
+                      <NDataTable
+                        bordered
+                        singleLine={false}
+                        columns={columns}
+                        data={requestBody}
+                        class={styles.table}
+                        rowKey={(row) => row.name}
+                      />
+                    </>
+                  ) : null
+                })}
                 {curApiRef.value?.responseBody?.length ? (
                   <>
                     <div style="margin-top: 12px;">
@@ -168,7 +172,6 @@ const app = defineComponent({
                       columns={columns}
                       data={curApiRef.value.responseBody}
                       class={styles.table}
-                      rowKey={(row) => row.name}
                     />
                   </>
                 ) : null}

@@ -33,10 +33,12 @@ import {
   objectProperty,
   ObjectProperty,
   exportDefaultDeclaration,
+  tsObjectKeyword,
+  TSObjectKeyword,
 } from "@babel/types"
 
 type JavaBaseType = "integer" | "number" | "string" | "boolean"
-type JavaType = JavaBaseType | "array"
+type JavaType = JavaBaseType | "array" | "object"
 
 interface DefinitionArrayItem {
   $ref?: string
@@ -132,7 +134,7 @@ interface ApiVO {
   name: string
   code: string
   query?: TableRowVO[]
-  requestBody?: TableRowVO[]
+  requestBody?: TableRowVO[][]
   responseBody?: TableRowVO[]
   summary?: string
   description?: string
@@ -173,7 +175,7 @@ function collectProgramBody(context: Context) {
   function javaTypeToTsKeyword(
     javaType: JavaType,
     item?: DefinitionArrayItem,
-  ): TSStringKeyword | TSNumberKeyword | TSBooleanKeyword | TSArrayType | void {
+  ): TSStringKeyword | TSNumberKeyword | TSBooleanKeyword | TSArrayType | TSObjectKeyword | void {
     if (javaType === "string") {
       return tsStringKeyword()
     }
@@ -182,6 +184,9 @@ function collectProgramBody(context: Context) {
     }
     if (javaType === "boolean") {
       return tsBooleanKeyword()
+    }
+    if (javaType === "object") {
+      return tsObjectKeyword()
     }
     if (javaType === "array") {
       const refDefinitionKey = matchRefInterfaceName(item?.$ref)
@@ -304,19 +309,16 @@ function collectProgramBody(context: Context) {
     return tableRaws
   }
 
-  const refDefinitionKey = matchRefInterfaceName(parameters.find((d) => d.in === "body")?.schema?.$ref)
-
+  const refDefinitionKeys = parameters
+    .filter((d) => d.in === "body" && d.schema?.$ref)
+    .map((d) => matchRefInterfaceName(d.schema?.$ref))
   return {
     resInterface: resolveTsInterface(definitionKey),
     queryInterface: resolveQuery(),
-    bodyInterface: resolveTsInterface(refDefinitionKey),
-    requestBody: resolveTableRaws(refDefinitionKey),
+    bodyInterfaces: refDefinitionKeys.map((refDefinitionKey) => resolveTsInterface(refDefinitionKey) as string),
+    requestBody: refDefinitionKeys.map((refDefinitionKey) => resolveTableRaws(refDefinitionKey)),
     responseBody: resolveTableRaws(definitionKey),
   }
-}
-
-function makeImportDeclaration() {
-  return importDeclaration([importDefaultSpecifier(identifier("http"))], stringLiteral("@utils/http"))
 }
 
 function parseSwagger(swagger: Swagger): GroupVO[] {
@@ -346,14 +348,16 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
         const context = {
           definitionKeyCache: {},
           interfaceNameCache: {},
-          program: program([makeImportDeclaration()]),
+          program: program([
+            importDeclaration([importDefaultSpecifier(identifier("http"))], stringLiteral("@utils/http")),
+          ]),
           definitions,
           definitionKey,
           parameters,
           name,
         }
 
-        const { resInterface, queryInterface, bodyInterface, requestBody, responseBody } = collectProgramBody(context)
+        const { resInterface, queryInterface, bodyInterfaces, requestBody, responseBody } = collectProgramBody(context)
 
         const apiFunction = functionDeclaration(
           identifier(name),
@@ -362,9 +366,9 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
               ...identifier("query"),
               typeAnnotation: tsTypeAnnotation(tsTypeReference(identifier(queryInterface))),
             },
-            bodyInterface && {
+            bodyInterfaces.length && {
               ...identifier("data"),
-              typeAnnotation: tsTypeAnnotation(tsTypeReference(identifier(bodyInterface))),
+              typeAnnotation: tsTypeAnnotation(tsTypeReference(identifier(bodyInterfaces[0]))),
             },
           ].filter(Boolean) as Identifier[],
           blockStatement([
@@ -375,7 +379,7 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
                     objectProperty(identifier("url"), stringLiteral(url)),
                     objectProperty(identifier("method"), stringLiteral(method)),
                     queryInterface && objectProperty(identifier("params"), identifier("query")),
-                    bodyInterface && objectProperty(identifier("data"), identifier("data"), false, true),
+                    bodyInterfaces.length && objectProperty(identifier("data"), identifier("data"), false, true),
                   ].filter(Boolean) as ObjectProperty[],
                 ),
               ]),
@@ -387,14 +391,14 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
         )
 
         if (summary || description) {
-          addComment(apiFunction, "leading", ` ${[summary, description].join(", ")}`, true)
+          addComment(apiFunction, "leading", ` ${[summary, description].filter(Boolean).join(", ")}`, true)
         }
 
         context.program.body.push(apiFunction, exportDefaultDeclaration(identifier(name)))
 
         const code = generate(context.program).code.replace(/\n\n/g, "\n").replace(/;/g, "")
 
-        tagMap[curRequest.tags[0]].apiVOs.push({
+        const apiVO = {
           method,
           url,
           name,
@@ -414,6 +418,10 @@ function parseSwagger(swagger: Swagger): GroupVO[] {
           summary,
           description,
           code,
+        }
+
+        curRequest.tags.forEach((tag) => {
+          tagMap[tag].apiVOs.push(apiVO)
         })
       })
     })
