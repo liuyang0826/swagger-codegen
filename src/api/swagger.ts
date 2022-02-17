@@ -7,6 +7,7 @@ export interface TableRowVO {
   format?: string
   required?: boolean
   description?: string
+  enum?: (string | number)[]
   children?: TableRowVO[]
 }
 
@@ -14,10 +15,14 @@ export interface ParsedRequestDefinition {
   query?: TableRowVO[]
   requestBody?: TableRowVO[][]
   responseBody: TableRowVO[]
-  code: string
-  mock: string
+  tsCode: string
+  jsCode: string
+  mockJSON: string
+  mockTemplate: string
   name: string
   tags: string[]
+  produces?: string[]
+  consumes?: string[]
   summary: string
   description: string
 }

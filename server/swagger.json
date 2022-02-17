@@ -92,7 +92,7 @@
         "description": "哈哈哈哈哈",
         "operationId": "updateUsingPOST",
         "consumes": ["application/json"],
-        "produces": ["*/*"],
+        "produces": ["*/*", "application/*"],
         "parameters": [{
           "name": "id",
           "in": "query",

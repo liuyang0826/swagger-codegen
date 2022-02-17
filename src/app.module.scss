@@ -78,19 +78,17 @@
   padding: 8px 12px;
   background: #f2f4fa;
   border-radius: 4px;
+  span {
+    margin-right: 48px;
+  }
 }
 
 .table {
   margin-top: 16px;
 }
 
-.summary {
-  margin-left: 48px;
-}
-
 .code-wrapper {
   height: calc(100vh - 278px);
   margin-top: -12px;
-  padding: 12px 0;
   overflow: auto;
 }

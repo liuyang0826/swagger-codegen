@@ -36,7 +36,8 @@ import {
   tsObjectKeyword,
   TSObjectKeyword,
 } from "@babel/types"
-import mock from "./mock"
+import { mock } from "mockjs"
+import toMockTemplate from "./to-mock-template"
 
 type JavaBaseType = "integer" | "number" | "string" | "boolean"
 type JavaType = JavaBaseType | "array" | "object"
@@ -76,6 +77,8 @@ interface Parameter {
 
 interface RequestDefinition {
   tags: string[]
+  produces?: string[]
+  consumes?: string[]
   summary: string
   description: string
   operationId: string
@@ -106,10 +109,14 @@ interface ParsedRequestDefinition {
   query?: TableRowVO[]
   requestBody?: TableRowVO[][]
   responseBody: TableRowVO[]
-  code: string
-  mock: string
+  tsCode: string
+  jsCode: string
+  mockJSON: string
+  mockTemplate: string
   name: string
   tags: string[]
+  produces?: string[]
+  consumes?: string[]
   summary: string
   description: string
 }
@@ -156,6 +163,10 @@ function matchRefInterfaceName($ref?: string) {
 function transformOperationId(operationId: string) {
   const index = operationId.indexOf("Using")
   return index === -1 ? operationId : operationId.slice(0, index)
+}
+
+function generateCode(program: Program) {
+  return generate(program).code.replace(/\n\n/g, "\n").replace(/;/g, "")
 }
 
 function collectProgramBody(context: Context) {
@@ -351,16 +362,20 @@ function parseSwagger(swagger: Swagger): ParsedSwagger {
         if (!definitionKey) {
           return acc2
         }
-        const { operationId, parameters, summary, description, tags } = curRequest
+        const { operationId, parameters, summary, description, tags, consumes, produces } = curRequest
 
         const name = transformOperationId(operationId)
+
+        const importDeclarationNode = importDeclaration(
+          [importDefaultSpecifier(identifier("http"))],
+          stringLiteral("@utils/http"),
+        )
+        const exportDefaultDeclarationNode = exportDefaultDeclaration(identifier(name))
 
         const context = {
           definitionKeyCache: {},
           interfaceNameCache: {},
-          program: program([
-            importDeclaration([importDefaultSpecifier(identifier("http"))], stringLiteral("@utils/http")),
-          ]),
+          program: program([importDeclarationNode]),
           definitions,
           definitionKey,
           parameters,
@@ -369,7 +384,7 @@ function parseSwagger(swagger: Swagger): ParsedSwagger {
 
         const { resInterface, queryInterface, bodyInterfaces, requestBody, responseBody } = collectProgramBody(context)
 
-        const apiFunction = functionDeclaration(
+        const tsApiFunction = functionDeclaration(
           identifier(name),
           [
             queryInterface && {
@@ -400,36 +415,67 @@ function parseSwagger(swagger: Swagger): ParsedSwagger {
           ]),
         )
 
+        const jsApiFunction = functionDeclaration(
+          identifier(name),
+          [queryInterface && identifier("query"), bodyInterfaces.length && identifier("data")].filter(
+            Boolean,
+          ) as Identifier[],
+          blockStatement([
+            returnStatement(
+              callExpression(identifier("http"), [
+                objectExpression(
+                  [
+                    objectProperty(identifier("url"), stringLiteral(path)),
+                    objectProperty(identifier("method"), stringLiteral(method)),
+                    queryInterface && objectProperty(identifier("params"), identifier("query")),
+                    bodyInterfaces.length && objectProperty(identifier("data"), identifier("data"), false, true),
+                  ].filter(Boolean) as ObjectProperty[],
+                ),
+              ]),
+            ),
+          ]),
+        )
+
         if (summary || description) {
-          addComment(apiFunction, "leading", ` ${[summary, description].filter(Boolean).join(", ")}`, true)
+          addComment(tsApiFunction, "leading", ` ${[summary, description].filter(Boolean).join(", ")}`, true)
+          addComment(jsApiFunction, "leading", ` ${[summary, description].filter(Boolean).join(", ")}`, true)
         }
 
-        context.program.body.push(apiFunction, exportDefaultDeclaration(identifier(name)))
+        context.program.body.push(tsApiFunction, exportDefaultDeclarationNode)
 
-        const code = generate(context.program).code.replace(/\n\n/g, "\n").replace(/;/g, "")
+        const query = curRequest.parameters
+          .filter((d) => d.in === "query")
+          .map((item, index) => {
+            const { name, type, format, required, description } = item
+            return {
+              id: index + 1,
+              name,
+              type: type || "object",
+              format,
+              required,
+              description,
+            }
+          })
+
+        const tsCode = generateCode(context.program)
+        const jsCode = generateCode(program([importDeclarationNode, jsApiFunction, exportDefaultDeclarationNode]))
+
+        const mockTemplate = toMockTemplate(responseBody)
 
         acc2[method] = {
           description,
           name,
           summary,
           tags,
-          query: curRequest.parameters
-            .filter((d) => d.in === "query")
-            .map((item, index) => {
-              const { name, type, format, required, description } = item
-              return {
-                id: index + 1,
-                name,
-                type: type || "object",
-                format,
-                required,
-                description,
-              }
-            }),
+          consumes,
+          produces,
+          query,
           requestBody,
           responseBody,
-          code,
-          mock: JSON.stringify(mock(responseBody), null, 2),
+          tsCode,
+          jsCode,
+          mockJSON: JSON.stringify(mock(mockTemplate), null, 2),
+          mockTemplate: JSON.stringify(mockTemplate, null, 2),
         }
         return acc2
       }, {} as Record<string, ParsedRequestDefinition>)

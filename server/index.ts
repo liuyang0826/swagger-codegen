@@ -1,14 +1,13 @@
 // import axios from "axios"
 import Koa from "koa"
 import cors from "koa-cors"
-import KoaRouter from "koa-router"
 import koaStatic from "koa-static"
 import LruCache from "lru-cache"
+import { mock } from "mockjs"
 import parseSwagger, { ParsedSwagger, Swagger } from "./parse-swagger"
 import swaggerJSon from "./swagger.json"
-import mock from "./mock"
+import toMockTemplate from "./to-mock-template"
 const app = new Koa()
-const router = new KoaRouter()
 
 function sleep(timeout: number) {
   return new Promise<void>((resolve) => {
@@ -24,23 +23,30 @@ lruCache.set("swagger", parseSwagger(swaggerJSon as Swagger))
 
 app.use(cors())
 
-router.get("/swagger", async (ctx) => {
+// 获取swagger配置
+app.use(async (ctx, next) => {
   // const { data } = await axios.get<Swagger>(ctx.query.url as string)
-  ctx.body = JSON.stringify(lruCache.get("swagger"))
+  if (ctx.headers["x-use-mock"]) {
+    return await next()
+  }
+  if (ctx.path === "/swagger") {
+    ctx.body = JSON.stringify(lruCache.get("swagger"))
+  }
 })
-
-app.use(router.routes())
 
 // mock接口
 app.use(async (ctx, next) => {
+  if (!ctx.headers["x-use-mock"]) {
+    return await next()
+  }
   const cache = lruCache.get("swagger")
   const responseBody = cache?.paths[ctx.path]?.[ctx.method.toLocaleLowerCase()]?.responseBody
   if (!responseBody) {
     return await next()
   }
-  // 通过自定义header设置mock参数
-  await sleep(Number(ctx.headers["mock-timeout"]) || 0)
-  ctx.body = mock(responseBody)
+  await sleep(Number(ctx.headers["x-mock-timeout"]) || 0)
+  // console.log(mock(makeMockTemplate(responseBody)))
+  ctx.body = mock(toMockTemplate(responseBody))
 })
 
 app.use(koaStatic(`${__dirname}/static`))

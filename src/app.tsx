@@ -2,7 +2,6 @@ import { defineComponent, onBeforeMount, ref } from "vue"
 import {
   DataTableColumn,
   NButton,
-  NCode,
   NCollapse,
   NCollapseItem,
   NDataTable,
@@ -10,20 +9,18 @@ import {
   NInput,
   NList,
   NListItem,
+  NRadio,
+  NRadioGroup,
+  NSpace,
   NTabPane,
   NTabs,
   NTag,
   NThing,
 } from "naive-ui"
-import hljs from "highlight.js/lib/core"
-import typescript from "highlight.js/lib/languages/typescript"
-import json from "highlight.js/lib/languages/json"
 import { Checkmark } from "@vicons/ionicons5"
 import styles from "./app.module.scss"
-import swagger, { ParsedRequestDefinition, Tag } from "./api/swagger"
-
-hljs.registerLanguage("typescript", typescript)
-hljs.registerLanguage("json", json)
+import swagger, { ParsedRequestDefinition, TableRowVO, Tag } from "./api/swagger"
+import CodeEditor from "./components/code-editor"
 
 interface ApiVO extends ParsedRequestDefinition {
   path: string
@@ -77,7 +74,7 @@ const app = defineComponent({
       delete: "error",
     }
 
-    const columns: DataTableColumn[] = [
+    const columns: DataTableColumn<TableRowVO>[] = [
       {
         title: "参数名称",
         key: "name",
@@ -92,7 +89,7 @@ const app = defineComponent({
       {
         title: "必需参数",
         key: "required",
-        width: 160,
+        width: 120,
         render: (rowData) =>
           rowData.required ? (
             <NIcon size={18} style={{ verticalAlign: "middle" }}>
@@ -101,10 +98,48 @@ const app = defineComponent({
           ) : null,
       },
       {
+        title: "可选值",
+        key: "enum",
+        width: 280,
+        render: ({ enum: enums }) => (enums ? enums.join(", ") : null),
+      },
+      {
         title: "备注",
         key: "description",
       },
     ]
+    const rowKey = (row: TableRowVO) => row.id
+
+    const activeTabRef = ref(0)
+
+    const codeTypeRef = ref(1)
+    const renderCodeTypeRadio = () => {
+      return (
+        <NRadioGroup v-model:value={codeTypeRef.value}>
+          <NSpace>
+            <NRadio value={1}>typescript</NRadio>
+            <NRadio value={2}>javascript</NRadio>
+          </NSpace>
+        </NRadioGroup>
+      )
+    }
+
+    const mockTypeRef = ref(1)
+    const renderMockTypeRadio = () => {
+      return (
+        <NRadioGroup v-model:value={mockTypeRef.value}>
+          <NSpace>
+            <NRadio value={1}>JSON</NRadio>
+            <NRadio value={2}>Mock</NRadio>
+          </NSpace>
+        </NRadioGroup>
+      )
+    }
+
+    const suffixRenderMap: Record<number, () => JSX.Element> = {
+      1: renderCodeTypeRadio,
+      2: renderMockTypeRadio,
+    }
 
     return () => (
       <>
@@ -169,13 +204,24 @@ const app = defineComponent({
               <div class={styles.info}>
                 <div>
                   <span>接口名称：{curApiRef.value?.name}</span>
-                  <span class={styles.summary}>接口摘要：{curApiRef.value?.summary}</span>
+                  <span>接口摘要：{curApiRef.value?.summary}</span>
+                  <span>接口描述：{curApiRef.value?.description}</span>
                 </div>
-                <div>接口描述：{curApiRef.value?.description}</div>
+                <div>
+                  <span>请求数据类型：{JSON.stringify(curApiRef.value?.consumes || [])}</span>
+                  <span>响应数据类型：{JSON.stringify(curApiRef.value?.produces || [])}</span>
+                </div>
               </div>
             </NThing>
-            <NTabs type="card" style={{ marginTop: "16px" }}>
-              <NTabPane name={0} tab="接口定义">
+            <NTabs
+              type="card"
+              style={{ marginTop: "16px" }}
+              v-model:value={activeTabRef.value}
+              v-slots={{
+                suffix: () => suffixRenderMap[activeTabRef.value]?.(),
+              }}
+            >
+              <NTabPane name={0} tab="接口定义" displayDirective="show">
                 {curApiRef.value?.query?.length ? (
                   <>
                     <div>
@@ -188,7 +234,7 @@ const app = defineComponent({
                       columns={columns}
                       data={curApiRef.value.query}
                       class={styles.table}
-                      rowKey={(row) => row.id}
+                      rowKey={rowKey}
                     />
                   </>
                 ) : null}
@@ -205,7 +251,7 @@ const app = defineComponent({
                         columns={columns}
                         data={requestBody}
                         class={styles.table}
-                        rowKey={(row) => row.id}
+                        rowKey={rowKey}
                       />
                     </>
                   ) : null
@@ -222,22 +268,30 @@ const app = defineComponent({
                       columns={columns}
                       data={curApiRef.value.responseBody}
                       class={styles.id}
-                      rowKey={(row) => row.id}
+                      rowKey={rowKey}
                     />
                   </>
                 ) : null}
               </NTabPane>
-              <NTabPane name={1} tab="请求代码">
+              <NTabPane name={1} tab="请求代码" displayDirective="show:lazy">
                 <div class={styles["code-wrapper"]}>
-                  <NCode code={curApiRef.value?.code} hljs={hljs} language="typescript" />
+                  <CodeEditor
+                    key={codeTypeRef.value}
+                    code={codeTypeRef.value === 1 ? curApiRef.value?.tsCode : curApiRef.value?.jsCode}
+                    language={codeTypeRef.value === 1 ? "typescript" : "javascript"}
+                    readOnly
+                  />
                 </div>
               </NTabPane>
-              <NTabPane name={2} tab="Mock数据">
+              <NTabPane name={2} tab="Mock数据" displayDirective="show:lazy">
                 <div class={styles["code-wrapper"]}>
-                  <NCode code={curApiRef.value?.mock} hljs={hljs} language="json" />
+                  <CodeEditor
+                    code={mockTypeRef.value === 1 ? curApiRef.value?.mockJSON : curApiRef.value?.mockTemplate}
+                    language="json"
+                  />
                 </div>
               </NTabPane>
-              <NTabPane name={3} tab="接口调试">
+              <NTabPane name={4} tab="接口调试" displayDirective="show:lazy">
                 <div>玩命开发中！！！</div>
               </NTabPane>
             </NTabs>

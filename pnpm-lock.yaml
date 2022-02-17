@@ -8,7 +8,6 @@ specifiers:
   '@types/babel__generator': ^7.6.4
   '@types/koa': ^2.13.4
   '@types/koa-cors': ^0.0.2
-  '@types/koa-router': ^7.4.4
   '@types/koa-static': ^4.0.2
   '@types/lru-cache': ^5.1.1
   '@types/mockjs': ^1.0.6
@@ -19,16 +18,15 @@ specifiers:
   axios: ^0.25.0
   eslint: ^8.6.0
   eslint-config-vue-tsx: github:1161906592/eslint-config-vue-tsx
-  highlight.js: ^11.4.0
   husky: ^7.0.4
   koa: ^2.13.4
   koa-cors: ^0.0.16
-  koa-router: ^10.1.1
   koa-static: ^5.0.0
   lint-staged: ^12.1.5
   lru-cache: ^7.3.1
   mock-server: github:1161906592/mock-server
   mockjs: ^1.1.0
+  monaco-editor: ^0.32.1
   naive-ui: ^2.25.2
   prettier: ^2.5.1
   sass: ^1.45.2
@@ -42,10 +40,8 @@ dependencies:
   '@babel/generator': 7.17.0
   '@babel/types': 7.17.0
   axios: registry.npmmirror.com/axios/0.25.0
-  highlight.js: registry.npmmirror.com/highlight.js/11.4.0
   koa: registry.npmmirror.com/koa/2.13.4
   koa-cors: registry.npmmirror.com/koa-cors/0.0.16
-  koa-router: registry.npmmirror.com/koa-router/10.1.1
   koa-static: registry.npmmirror.com/koa-static/5.0.0
   lru-cache: registry.npmmirror.com/lru-cache/7.3.1
   mockjs: registry.npmmirror.com/mockjs/1.1.0
@@ -56,7 +52,6 @@ devDependencies:
   '@types/babel__generator': 7.6.4
   '@types/koa': registry.npmmirror.com/@types/koa/2.13.4
   '@types/koa-cors': registry.npmmirror.com/@types/koa-cors/0.0.2
-  '@types/koa-router': registry.npmmirror.com/@types/koa-router/7.4.4
   '@types/koa-static': registry.npmmirror.com/@types/koa-static/4.0.2
   '@types/lru-cache': registry.npmmirror.com/@types/lru-cache/5.1.1
   '@types/mockjs': registry.npmmirror.com/@types/mockjs/1.0.6
@@ -69,6 +64,7 @@ devDependencies:
   husky: registry.npmmirror.com/husky/7.0.4
   lint-staged: registry.npmmirror.com/lint-staged/12.3.4
   mock-server: github.com/1161906592/mock-server/6f04e39d704e3b1d325e5af44b5546f8893bb48b
+  monaco-editor: registry.npmmirror.com/monaco-editor/0.32.1
   naive-ui: registry.npmmirror.com/naive-ui/2.25.2_vue@3.2.31
   prettier: 2.5.1
   sass: registry.npmmirror.com/sass/1.49.7
@@ -1304,14 +1300,6 @@ packages:
     resolution: {integrity: sha512-uNaDY26HUVO+2C6arK8ZFODs9mBjYprD8mlvkVe2bYdX9wzEeKtycVXPafXpUkePhMh4sffIMkhRDyedokG/QA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/koa-cors/-/koa-cors-0.0.2.tgz}
     name: '@types/koa-cors'
     version: 0.0.2
-    dependencies:
-      '@types/koa': registry.npmmirror.com/@types/koa/2.13.4
-    dev: true
-
-  registry.npmmirror.com/@types/koa-router/7.4.4:
-    resolution: {integrity: sha512-3dHlZ6CkhgcWeF6wafEUvyyqjWYfKmev3vy1PtOmr0mBc3wpXPU5E8fBBd4YQo5bRpHPfmwC5yDaX7s4jhIN6A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/koa-router/-/koa-router-7.4.4.tgz}
-    name: '@types/koa-router'
-    version: 7.4.4
     dependencies:
       '@types/koa': registry.npmmirror.com/@types/koa/2.13.4
     dev: true
@@ -3722,6 +3710,7 @@ packages:
     name: highlight.js
     version: 11.4.0
     engines: {node: '>=12.0.0'}
+    dev: true
 
   registry.npmmirror.com/hosted-git-info/2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz}
@@ -4303,6 +4292,7 @@ packages:
       path-to-regexp: registry.npmmirror.com/path-to-regexp/6.2.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   registry.npmmirror.com/koa-send/5.0.1:
     resolution: {integrity: sha512-tmcyQ/wXXuxpDxyNXv5yNNkdAMdFRqwtegBXUaowiQzUKqJehttS0x2j0eOZDQAyloAth5w6wwBImnFzkUz3pQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/koa-send/-/koa-send-5.0.1.tgz}
@@ -4590,6 +4580,7 @@ packages:
     name: methods
     version: 1.1.2
     engines: {node: '>= 0.6'}
+    dev: true
 
   registry.npmmirror.com/micromatch/4.0.4:
     resolution: {integrity: sha512-pRmzw/XUcwXGpD9aI9q/0XOwLNygjETJ8y0ao0wdqprrzDa4YnxLcz7fQRZr8voh8V10kGhABbNcHVk5wHgWwg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/micromatch/-/micromatch-4.0.4.tgz}
@@ -4662,6 +4653,12 @@ packages:
     dependencies:
       commander: registry.npmmirror.com/commander/9.0.0
     dev: false
+
+  registry.npmmirror.com/monaco-editor/0.32.1:
+    resolution: {integrity: sha512-LUt2wsUvQmEi2tfTOK+tjAPvt7eQ+K5C4rZPr6SeuyzjAuAHrIvlUloTcOiGjZW3fn3a/jFQCONrEJbNOaCqbA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/monaco-editor/-/monaco-editor-0.32.1.tgz}
+    name: monaco-editor
+    version: 0.32.1
+    dev: true
 
   registry.npmmirror.com/ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/ms/-/ms-2.0.0.tgz}
@@ -5027,6 +5024,7 @@ packages:
     resolution: {integrity: sha512-f66KywYG6+43afgE/8j/GoiNyygk/bnoCbps++3ErRKsIYkGGupyv07R2Ok5m9i67Iqc+T2g1eAUGUPzWhYTyg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/path-to-regexp/-/path-to-regexp-6.2.0.tgz}
     name: path-to-regexp
     version: 6.2.0
+    dev: true
 
   registry.npmmirror.com/path-type/4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/path-type/-/path-type-4.0.0.tgz}
