@@ -100,12 +100,6 @@ const Index = defineComponent({
           ) : null,
       },
       {
-        title: "可选值",
-        key: "enum",
-        width: 280,
-        render: ({ enum: enums }) => (enums ? enums.join(", ") : null),
-      },
-      {
         title: "备注",
         key: "description",
       },
@@ -250,6 +244,22 @@ const Index = defineComponent({
               }}
             >
               <NTabPane name={0} tab="接口定义" displayDirective="show">
+                {curApiRef.value?.pathVariables?.length ? (
+                  <>
+                    <div>
+                      <b>PathVariables</b>
+                    </div>
+                    <NDataTable
+                      size="small"
+                      bordered
+                      singleLine={false}
+                      columns={columns}
+                      data={curApiRef.value.pathVariables}
+                      class={styles.table}
+                      rowKey={rowKey}
+                    />
+                  </>
+                ) : null}
                 {curApiRef.value?.query?.length ? (
                   <>
                     <div>

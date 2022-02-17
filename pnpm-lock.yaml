@@ -303,7 +303,7 @@ packages:
       '@babel/helper-compilation-targets': registry.npmmirror.com/@babel/helper-compilation-targets/7.16.7_@babel+core@7.17.2
       '@babel/helper-module-transforms': registry.npmmirror.com/@babel/helper-module-transforms/7.16.7
       '@babel/helpers': registry.npmmirror.com/@babel/helpers/7.17.2
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@babel/template': registry.npmmirror.com/@babel/template/7.16.7
       '@babel/traverse': registry.npmmirror.com/@babel/traverse/7.17.0
       '@babel/types': registry.npmmirror.com/@babel/types/7.17.0
@@ -534,10 +534,10 @@ packages:
       js-tokens: registry.npmmirror.com/js-tokens/4.0.0
     dev: true
 
-  registry.npmmirror.com/@babel/parser/7.17.0:
-    resolution: {integrity: sha512-VKXSCQx5D8S04ej+Dqsr1CzYvvWgf20jIw2D+YhQCrIlr2UZGaDds23Y0xg75/skOxpLCRpUZvk/1EAVkGoDOw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@babel/parser/-/parser-7.17.0.tgz}
+  registry.npmmirror.com/@babel/parser/7.17.3:
+    resolution: {integrity: sha512-7yJPvPV+ESz2IUTPbOL+YkIGyCqOyNIzdguKQuJGnH7bg1WTIifuM21YqokFt/THWh1AkCRn9IgoykTRCBVpzA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@babel/parser/-/parser-7.17.3.tgz}
     name: '@babel/parser'
-    version: 7.17.0
+    version: 7.17.3
     engines: {node: '>=6.0.0'}
     hasBin: true
     dev: true
@@ -604,7 +604,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': registry.npmmirror.com/@babel/code-frame/7.16.7
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@babel/types': registry.npmmirror.com/@babel/types/7.17.0
     dev: true
 
@@ -620,7 +620,7 @@ packages:
       '@babel/helper-function-name': registry.npmmirror.com/@babel/helper-function-name/7.16.7
       '@babel/helper-hoist-variables': registry.npmmirror.com/@babel/helper-hoist-variables/7.16.7
       '@babel/helper-split-export-declaration': registry.npmmirror.com/@babel/helper-split-export-declaration/7.16.7
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@babel/types': registry.npmmirror.com/@babel/types/7.17.0
       debug: registry.npmmirror.com/debug/4.3.3
       globals: registry.npmmirror.com/globals/11.12.0
@@ -1711,7 +1711,7 @@ packages:
     name: '@vue/compiler-core'
     version: 3.2.31
     dependencies:
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@vue/shared': registry.npmmirror.com/@vue/shared/3.2.31
       estree-walker: registry.npmmirror.com/estree-walker/2.0.2
       source-map: registry.npmmirror.com/source-map/0.6.1
@@ -1731,7 +1731,7 @@ packages:
     name: '@vue/compiler-sfc'
     version: 3.2.31
     dependencies:
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@vue/compiler-core': registry.npmmirror.com/@vue/compiler-core/3.2.31
       '@vue/compiler-dom': registry.npmmirror.com/@vue/compiler-dom/3.2.31
       '@vue/compiler-ssr': registry.npmmirror.com/@vue/compiler-ssr/3.2.31
@@ -1763,7 +1763,7 @@ packages:
     name: '@vue/reactivity-transform'
     version: 3.2.31
     dependencies:
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@vue/compiler-core': registry.npmmirror.com/@vue/compiler-core/3.2.31
       '@vue/shared': registry.npmmirror.com/@vue/shared/3.2.31
       estree-walker: registry.npmmirror.com/estree-walker/2.0.2
@@ -2359,7 +2359,7 @@ packages:
     name: constantinople
     version: 4.0.1
     dependencies:
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@babel/types': registry.npmmirror.com/@babel/types/7.17.0
     dev: true
 
@@ -6601,7 +6601,7 @@ packages:
     version: 7.0.2
     engines: {node: '>= 10.0.0'}
     dependencies:
-      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.0
+      '@babel/parser': registry.npmmirror.com/@babel/parser/7.17.3
       '@babel/types': registry.npmmirror.com/@babel/types/7.17.0
       assert-never: registry.npmmirror.com/assert-never/1.2.1
       babel-walk: registry.npmmirror.com/babel-walk/3.0.0-canary-5

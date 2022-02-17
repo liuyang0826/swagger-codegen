@@ -13,6 +13,7 @@ export interface TableRowVO {
 
 export interface ParsedRequestDefinition {
   query?: TableRowVO[]
+  pathVariables?: TableRowVO[]
   requestBody?: TableRowVO[][]
   responseBody: TableRowVO[]
   tsCode: string

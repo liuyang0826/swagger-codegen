@@ -85,7 +85,7 @@
         "deprecated": false
       }
     },
-    "/api/user/update": {
+    "/api/user/update/{id}": {
       "post": {
         "tags": ["用户管理"],
         "summary": "修改用户",
@@ -95,11 +95,10 @@
         "produces": ["*/*", "application/*"],
         "parameters": [{
           "name": "id",
-          "in": "query",
+          "in": "path",
           "description": "用户id",
           "required": true,
-          "type": "string",
-          "allowEmptyValue": false
+          "type": "string"
         }, {
           "in": "body",
           "name": "userVO",
@@ -226,7 +225,7 @@
             "type": "object"
           }
         },
-        "age": {
+        "age-a": {
           "type": "number",
           "format": "float",
           "description": "年龄",
