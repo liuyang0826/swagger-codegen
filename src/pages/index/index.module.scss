@@ -63,6 +63,9 @@
 .api-header {
   display: flex;
   align-items: center;
+  > span {
+    margin-right: 12px;
+  }
 }
 
 .url {
@@ -91,4 +94,12 @@
   height: calc(100vh - 278px);
   margin-top: -12px;
   overflow: auto;
+}
+
+.tabs-suffix {
+  display: flex;
+  align-items: center;
+  :global(.n-radio-group) {
+    margin-bottom: 4px;
+  }
 }
