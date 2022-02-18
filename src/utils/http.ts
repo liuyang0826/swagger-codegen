@@ -1,5 +1,7 @@
-import axios from "axios"
+import axios, { AxiosRequestConfig } from "axios"
 
-const http = axios.create()
+async function http<T>(config: AxiosRequestConfig) {
+  return (await axios(config)).data as T
+}
 
 export default http

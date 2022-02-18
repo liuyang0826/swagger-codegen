@@ -42,8 +42,10 @@ interface ParsedSwagger {
   paths: ParsedPaths
 }
 
-async function swagger(url: string) {
-  return (await http.get<ParsedSwagger>("http://localhost:7788/swagger")).data
+function swagger(url: string) {
+  return http<ParsedSwagger>({
+    url: "http://localhost:7788/swagger",
+  })
 }
 
 export default swagger

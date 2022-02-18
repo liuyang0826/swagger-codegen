@@ -1,6 +1,7 @@
 // import axios from "axios"
 import Koa from "koa"
 import cors from "koa-cors"
+import koaBody from "koa-body"
 import koaStatic from "koa-static"
 import LruCache from "lru-cache"
 import { mock } from "mockjs"
@@ -22,6 +23,7 @@ const lruCache = new LruCache<string, ParsedSwagger>({
 lruCache.set("swagger", parseSwagger(swaggerJSon as Swagger))
 
 app.use(cors())
+app.use(koaBody())
 
 // 获取swagger配置
 app.use(async (ctx, next) => {
@@ -31,6 +33,18 @@ app.use(async (ctx, next) => {
   }
   if (ctx.path === "/swagger") {
     ctx.body = JSON.stringify(lruCache.get("swagger"))
+  } else if (ctx.path === "/mockConfig" && ctx.method === "POST") {
+    const {
+      request: { body },
+    } = ctx
+    lruCache.set((body.url as string) + body.method + body.type, body.config)
+    ctx.body = 0
+  } else if (ctx.path === "/mockConfig" && ctx.method === "GET") {
+    const { query } = ctx
+    const cacheResult = lruCache.get((query.url as string) + query.method + query.type)
+    if (cacheResult) {
+      ctx.body = cacheResult
+    }
   }
 })
 
@@ -39,13 +53,18 @@ app.use(async (ctx, next) => {
   if (!ctx.headers["x-use-mock"]) {
     return await next()
   }
+  const cacheMockJSON = lruCache.get(ctx.path + ctx.method.toLocaleLowerCase() + 1)
+  if (cacheMockJSON) {
+    await sleep(Number(ctx.headers["x-mock-timeout"]) || 0)
+    ctx.body = cacheMockJSON
+    return
+  }
   const cache = lruCache.get("swagger")
   const responseBody = cache?.paths[ctx.path]?.[ctx.method.toLocaleLowerCase()]?.responseBody
   if (!responseBody) {
     return await next()
   }
   await sleep(Number(ctx.headers["x-mock-timeout"]) || 0)
-  // console.log(mock(makeMockTemplate(responseBody)))
   ctx.body = mock(toMockTemplate(responseBody))
 })
 

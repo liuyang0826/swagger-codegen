@@ -22,6 +22,7 @@ import { Checkmark, CopyOutline } from "@vicons/ionicons5"
 import swagger, { ParsedRequestDefinition, TableRowVO, Tag } from "../../api/swagger"
 import CodeEditor from "../../components/code-editor"
 import copyValue from "../../utils/copy-value"
+import saveMockConfig from "../../api/save-mock-config"
 import styles from "./index.module.scss"
 
 interface ApiVO extends ParsedRequestDefinition {
@@ -108,6 +109,8 @@ const Index = defineComponent({
 
     const activeTabRef = ref(0)
 
+    const message = useMessage()
+
     const copyUrl = () => {
       copyValue(curApiRef.value?.path || "")
       message.success("复制成功")
@@ -140,14 +143,34 @@ const Index = defineComponent({
     }
 
     const mockTypeRef = ref(1)
+    const curMockCodeRef = ref("")
+    const handleUpdateMockCode = (code: string) => {
+      curMockCodeRef.value = code
+    }
+    const handleSaveMockConfig = async () => {
+      // curMockCodeRef.value = code
+      await saveMockConfig({
+        url: curApiRef.value?.path || "",
+        method: curApiRef.value?.method || "",
+        type: mockTypeRef.value || 1,
+        config: curMockCodeRef.value,
+      })
+      message.success("保存成功")
+    }
+
     const renderMockTypeRadio = () => {
       return (
-        <NRadioGroup v-model:value={mockTypeRef.value}>
-          <NSpace>
-            <NRadio value={1}>JSON</NRadio>
-            <NRadio value={2}>Mock</NRadio>
-          </NSpace>
-        </NRadioGroup>
+        <div class={styles["tabs-suffix"]}>
+          <NButton size="tiny" bordered onClick={handleSaveMockConfig} style={{ marginRight: "16px" }}>
+            保存配置
+          </NButton>
+          <NRadioGroup v-model:value={mockTypeRef.value}>
+            <NSpace>
+              <NRadio value={1}>JSON</NRadio>
+              <NRadio value={2}>Mock</NRadio>
+            </NSpace>
+          </NRadioGroup>
+        </div>
       )
     }
 
@@ -155,8 +178,6 @@ const Index = defineComponent({
       1: renderCodeTypeRadio,
       2: renderMockTypeRadio,
     }
-
-    const message = useMessage()
 
     return () => (
       <>
@@ -305,7 +326,7 @@ const Index = defineComponent({
                       singleLine={false}
                       columns={columns}
                       data={curApiRef.value.responseBody}
-                      class={styles.id}
+                      class={styles.table}
                       rowKey={rowKey}
                     />
                   </>
@@ -325,6 +346,7 @@ const Index = defineComponent({
                 <div class={styles["code-wrapper"]}>
                   <CodeEditor
                     code={mockTypeRef.value === 1 ? curApiRef.value?.mockJSON : curApiRef.value?.mockTemplate}
+                    onUpdateCode={handleUpdateMockCode}
                     language="json"
                   />
                 </div>
